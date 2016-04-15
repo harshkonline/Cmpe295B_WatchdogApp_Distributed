@@ -28,10 +28,6 @@ import com.facebook.login.widget.LoginButton;
 import cmpe295b.watchdog.R;
 
 
-/**
- * Created by nikitanilakh on 4/20/15.
- */
-
 public class FacebookLoginActivity extends ActionBarActivity {
 
     @Override
@@ -85,7 +81,7 @@ public class FacebookLoginActivity extends ActionBarActivity {
         private FacebookCallback<LoginResult> mFacebookCallback = new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("Nikita", "onSuccess");
+                Log.d("Harshad", "onSuccess");
                 AccessToken accessToken = loginResult.getAccessToken();
                 Profile profile = Profile.getCurrentProfile();
                 mTextDetails.setText(constructWelcomeMessage(profile));
@@ -96,12 +92,12 @@ public class FacebookLoginActivity extends ActionBarActivity {
 
             @Override
             public void onCancel() {
-                Log.d("Nikita", "onCancel");
+                Log.d("Harshad", "onCancel");
             }
 
             @Override
             public void onError(FacebookException e) {
-                Log.d("Nikita", "onError " + e);
+                Log.d("Harshad", "onError " + e);
             }
         };
 
@@ -166,7 +162,7 @@ public class FacebookLoginActivity extends ActionBarActivity {
             mTokenTracker = new AccessTokenTracker() {
                 @Override
                 protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                    Log.d("Nikita", "" + currentAccessToken);
+                    Log.d("Harshad", "" + currentAccessToken);
                 }
             };
         }
@@ -175,7 +171,8 @@ public class FacebookLoginActivity extends ActionBarActivity {
             mProfileTracker = new ProfileTracker() {
                 @Override
                 protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                    Log.d("Nikita", "" + currentProfile);
+                    Log.d("Harshad", "" + currentProfile);
+                    Log.d("@profile info",constructWelcomeMessage(currentProfile));
                     mTextDetails.setText(constructWelcomeMessage(currentProfile));
                 }
             };
@@ -191,7 +188,7 @@ public class FacebookLoginActivity extends ActionBarActivity {
         private String constructWelcomeMessage(Profile profile) {
             StringBuffer stringBuffer = new StringBuffer();
             if (profile != null) {
-                stringBuffer.append("Welcome " + profile.getName());
+                stringBuffer.append("Welcome " + profile.getName()+"profile id"+profile.getId());
             }
             return stringBuffer.toString();
         }

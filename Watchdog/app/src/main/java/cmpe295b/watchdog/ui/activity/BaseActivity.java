@@ -1,6 +1,9 @@
 package cmpe295b.watchdog.ui.activity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,15 +25,20 @@ import cmpe295b.watchdog.ui.fragment.MemoryFragment;
 import cmpe295b.watchdog.ui.fragment.NavigationDrawerFragment;
 import cmpe295b.watchdog.ui.fragment.SummaryFragment;
 import cmpe295b.watchdog.ui.fragment.SystemFragment;
+import cmpe295b.watchdog.util.AlarmReceiverLifeLog;
 
 
 public class BaseActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-
+    final static long ONE_SECOND = 1000;
+    final static long ONE_MINUTE = ONE_SECOND * 60;
+    final static long FIVE_MINUTE = ONE_MINUTE * 5;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+
+
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -42,6 +50,7 @@ public class BaseActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
 
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -50,6 +59,24 @@ public class BaseActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+       /* Intent msgIntent = new Intent(this, SimpleIntentService.class);
+        msgIntent.putExtra(SimpleIntentService.PARAM_IN_MSG, "Hello");
+        startService(msgIntent);*/
+
+       /* Intent i= new Intent(this, SaveDataService.class);
+        // potentially add data to the intent
+        i.putExtra(SaveDataService.PARAM_IN_MSG, "Infinite Hello");
+        startService(i);*/
+
+        Intent ll24 = new Intent(getApplicationContext(), AlarmReceiverLifeLog.class);
+        PendingIntent recurringLl24 = PendingIntent.getBroadcast(this, 600000, ll24, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarms.setRepeating(AlarmManager.RTC_WAKEUP, 60000, FIVE_MINUTE, recurringLl24);
+
+
+       /* Intent myIntent = new Intent(getApplicationContext(), AlarmReceiverLifeLog.class);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,myIntent, 0);*/
     }
 
     @Override
@@ -60,6 +87,7 @@ public class BaseActivity extends ActionBarActivity
         switch(position) {
             default:
             case 0:
+
                 fragment = new SummaryFragment();
                 break;
             case 1:

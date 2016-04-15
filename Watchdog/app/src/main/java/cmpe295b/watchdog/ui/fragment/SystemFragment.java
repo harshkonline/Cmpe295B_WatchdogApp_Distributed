@@ -85,7 +85,7 @@ public class SystemFragment extends Fragment {
         info.deviceId=wifiInfo.getMacAddress();
 
         SaveAsyncTask tsk = new SaveAsyncTask();
-        tsk.execute(info);
+      //  tsk.execute(info);
         //textTotalCpuUsage.setText("sdadadsa");
 
         Timber.d("cpu:" + readCpuInfo());
