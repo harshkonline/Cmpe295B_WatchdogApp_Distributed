@@ -67,7 +67,6 @@ public class BaseActivity extends ActionBarActivity
         // potentially add data to the intent
         i.putExtra(SaveDataService.PARAM_IN_MSG, "Infinite Hello");
         startService(i);*/
-
         Intent ll24 = new Intent(getApplicationContext(), AlarmReceiverLifeLog.class);
         PendingIntent recurringLl24 = PendingIntent.getBroadcast(this, 600000, ll24, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
