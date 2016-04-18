@@ -46,4 +46,6 @@ dependencies {
     compile 'com.jakewharton.timber:timber:3.0.1'
     compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+    compile 'com.pubnub:pubnub-android:3.7.8'
+
 }

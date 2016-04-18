@@ -11,11 +11,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import cmpe295b.watchdog.R;
 import cmpe295b.watchdog.ui.fragment.ApplicationsFragment;
@@ -67,10 +76,85 @@ public class BaseActivity extends ActionBarActivity
         // potentially add data to the intent
         i.putExtra(SaveDataService.PARAM_IN_MSG, "Infinite Hello");
         startService(i);*/
+
+       // Pubnub pubnub = new Pubnub("demo", "demo");
+        Pubnub pubnub = new Pubnub(
+                "demo",  // PUBLISH_KEY   (Optional, supply "" to disable)
+                "demo",  // SUBSCRIBE_KEY (Required)
+                "",      // SECRET_KEY    (Optional, supply "" to disable)
+                "",      // CIPHER_KEY    (Optional, supply "" to disable)
+                false    // SSL_ON?
+        );
+
+
+        /* Subscribe to the demo_tutorial channel */
+        try {
+            pubnub.subscribe("mobilexyz", new Callback() {
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : CONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void disconnectCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : DISCONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                public void reconnectCallback(String channel, Object message) {
+                    Log.d("PUBNUB", "SUBSCRIBE : RECONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void successCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : " + channel + " : "
+                            + message.getClass() + " : " + message.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("PUBNUB","SUBSCRIBE : ERROR on channel " + channel
+                            + " : " + error.toString());
+                }
+            });
+        } catch (PubnubException e) {
+            e.printStackTrace();
+        }
+
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("cpuUtil","33");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        pubnub.publish("mobilexyz", data, new Callback() {
+
+            @Override
+            public void successCallback(String channel, Object response) {
+                Log.d("PUBNUB", response.toString());
+            }
+
+            @Override
+            public void errorCallback(String channel, PubnubError error) {
+                Log.d("PUBNUB", error.toString());
+            }
+
+        });
+
+
+
+
         Intent ll24 = new Intent(getApplicationContext(), AlarmReceiverLifeLog.class);
-        PendingIntent recurringLl24 = PendingIntent.getBroadcast(this, 600000, ll24, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent recurringLl24 = PendingIntent.getBroadcast(this, 1000, ll24, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarms.setRepeating(AlarmManager.RTC_WAKEUP, 60000, FIVE_MINUTE, recurringLl24);
+        alarms.setRepeating(AlarmManager.RTC_WAKEUP, 1000, 1000, recurringLl24);
 
 
        /* Intent myIntent = new Intent(getApplicationContext(), AlarmReceiverLifeLog.class);

@@ -9,11 +9,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -44,6 +50,85 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
         SaveAsyncTask tsk = new SaveAsyncTask();
         tsk.execute(info);
        // Toast.makeText(context, totalCPUUtil, Toast.LENGTH_SHORT).show();
+
+
+
+       // Pubnub pubnub = new Pubnub("demo", "demo");
+
+
+        /* Subscribe to the demo_tutorial channel */
+        Pubnub pubnub = new Pubnub(
+                "demo",  // PUBLISH_KEY   (Optional, supply "" to disable)
+                "demo",  // SUBSCRIBE_KEY (Required)
+                "",      // SECRET_KEY    (Optional, supply "" to disable)
+                "",      // CIPHER_KEY    (Optional, supply "" to disable)
+                false    // SSL_ON?
+        );
+
+
+        /* Subscribe to the demo_tutorial channel */
+        try {
+            pubnub.subscribe("mobilexyz", new Callback() {
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : CONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void disconnectCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : DISCONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                public void reconnectCallback(String channel, Object message) {
+                    Log.d("PUBNUB", "SUBSCRIBE : RECONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void successCallback(String channel, Object message) {
+                    Log.d("PUBNUB","SUBSCRIBE : " + channel + " : "
+                            + message.getClass() + " : " + message.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("PUBNUB","SUBSCRIBE : ERROR on channel " + channel
+                            + " : " + error.toString());
+                }
+            });
+        } catch (PubnubException e) {
+            e.printStackTrace();
+        }
+
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("cpuUtil",info.totalCPUUtil);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        pubnub.publish("mobilexyz", data, new Callback() {
+
+            @Override
+            public void successCallback(String channel, Object response) {
+                Log.d("PUBNUB", response.toString());
+            }
+
+            @Override
+            public void errorCallback(String channel, PubnubError error) {
+                Log.d("PUBNUB", error.toString());
+            }
+
+        });
+
+
+        Toast.makeText(context, "mobilexyz", Toast.LENGTH_SHORT).show();
 
 
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -110,6 +195,11 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
 
         @Override
         protected Boolean doInBackground(SystemInfo... arg0) {
+
+           /***
+            *  Publish Data to PubNub
+            * */
+
             try
             {
                 SystemInfo sysInfo = arg0[0];
