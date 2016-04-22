@@ -1,18 +1,14 @@
 package cmpe295b.watchdog.util;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
-import com.pubnub.api.PubnubException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -25,7 +21,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by harshad on 4/14/2016.
@@ -47,8 +44,8 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
         info.totalCPUUtil=totalCPUUtil;
         info.deviceId="BCDA234";
 
-        SaveAsyncTask tsk = new SaveAsyncTask();
-        tsk.execute(info);
+      /*  SaveAsyncTask tsk = new SaveAsyncTask();
+        tsk.execute(info);*/
        // Toast.makeText(context, totalCPUUtil, Toast.LENGTH_SHORT).show();
 
 
@@ -68,7 +65,7 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
 
         /* Subscribe to the demo_tutorial channel */
         try {
-            pubnub.subscribe("mobilexyz", new Callback() {
+            /*pubnub.subscribe("mobilexyz", new Callback() {
                 @Override
                 public void connectCallback(String channel, Object message) {
                     Log.d("PUBNUB","SUBSCRIBE : CONNECT on channel:" + channel
@@ -83,7 +80,7 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                             + message.toString());
                 }
 
-                public void reconnectCallback(String channel, Object message) {
+                public void reconnectCallback(String channel,    Object message) {
                     Log.d("PUBNUB", "SUBSCRIBE : RECONNECT on channel:" + channel
                             + " : " + message.getClass() + " : "
                             + message.toString());
@@ -98,45 +95,130 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                 @Override
                 public void errorCallback(String channel, PubnubError error) {
                     Log.d("PUBNUB","SUBSCRIBE : ERROR on channel " + channel
-                            + " : " + error.toString());
+                             + " : " + error.toString());
                 }
-            });
-        } catch (PubnubException e) {
+            });*/
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
 
         JSONObject data = new JSONObject();
+
+        ArrayList<Object> dataTemp1=new ArrayList<Object>();
+        dataTemp1.add("x");
+        dataTemp1.add(new Date().getTime());
+
+        ArrayList<Object> dataTemp2=new ArrayList<Object>();
+        dataTemp2.add("cpuUtil");
+        dataTemp2.add(totalCPUUtil);
+
+        ArrayList<Object> parent=new ArrayList<Object>();
+        parent.add(dataTemp1);
+        parent.add(dataTemp2);
+
         try {
-            data.put("cpuUtil",info.totalCPUUtil);
+            data.put("columns",parent);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        pubnub.publish("mobilexyz", data, new Callback() {
+      long  t= new Date().getTime();
+       String data1= "{'columns': [['cpuUtil',"+ totalCPUUtil+"]]}";
+       // String data1= "{'columns': [['x',"+ t+"],['cpuUtil',"+ 45+"]]}";
 
-            @Override
-            public void successCallback(String channel, Object response) {
-                Log.d("PUBNUB", response.toString());
+
+        try {
+           // JSONArray jsonArray = new JSONArray(data1);
+
+
+            JSONObject obj=new JSONObject(data1);
+            Log.i("@@json", String.valueOf(obj));
+                pubnub.publish("mobilexyz", obj, new Callback() {
+
+                @Override
+                public void successCallback(String channel, Object response) {
+                    Log.d("PUBNUB PUBLISH", response.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("PUBNUB PUBLISH", error.toString());
+                }
+
+            });
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+       /* try
+        {
+
+            Log.i("sysinfo@@@",totalCPUUtil);
+            QueryBuilder qb = new QueryBuilder();
+
+            HttpClient httpClient = new DefaultHttpClient();
+            //HttpPost request = new HttpPost(qb.buildContactsSaveURL());
+            HttpPost request = new HttpPost("http://10.0.0.227:4000/devices");
+
+            //Log.i("@@apikey",qb.buildContactsSaveURL());
+            JSONObject object = new JSONObject();
+            try {
+
+                object.put("device_id","dev");
+                object.put("device_type","mobile");
+                object.put("channel","ch1");
+                object.put("date","2016-04-12");
+                object.put("value", totalCPUUtil);
+
+
+            } catch (Exception ex) {
+
             }
 
-            @Override
-            public void errorCallback(String channel, PubnubError error) {
-                Log.d("PUBNUB", error.toString());
+
+            message = object.toString();
+            Log.i("@Message",message);
+            StringEntity params =new StringEntity(message);
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            HttpResponse response = httpClient.execute(request);
+            Log.i("@@response",String.valueOf(response.getStatusLine().getStatusCode()));
+            if(response.getStatusLine().getStatusCode()<205)
+            {
+                Log.i("@response","SUCESS");
+
             }
+            else
+            {
+                Log.i("@response","Failed");
+            }
+        } catch (Exception e) {
+            //e.getCause();
+            String val = e.getMessage();
+            String val2 = val;
+            Log.i("exception@@",val2);
 
-        });
+        }*/
 
 
-        Toast.makeText(context, "mobilexyz", Toast.LENGTH_SHORT).show();
+}
 
 
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
+       // Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
       /*  Intent intent2 = new Intent(context, BaseActivity.class);
         intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent2);
         setAlarm(context);*/
-    }
+
 
 
     private String getCpuUsageStatistic() {
@@ -197,7 +279,7 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
         protected Boolean doInBackground(SystemInfo... arg0) {
 
            /***
-            *  Publish Data to PubNub
+            *  Save the data to database
             * */
 
             try
@@ -207,12 +289,18 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                 QueryBuilder qb = new QueryBuilder();
                 String message="";
                 HttpClient httpClient = new DefaultHttpClient();
-                HttpPost request = new HttpPost(qb.buildContactsSaveURL());
-                Log.i("@@apikey",qb.buildContactsSaveURL());
+                //HttpPost request = new HttpPost(qb.buildContactsSaveURL());
+                HttpPost request = new HttpPost("http://10.0.0.227:4000/devices");
+
+                //Log.i("@@apikey",qb.buildContactsSaveURL());
                 JSONObject object = new JSONObject();
                 try {
 
-                    object.put("cpuUtil", sysInfo.totalCPUUtil);
+                    object.put("device_id","dev");
+                    object.put("device_type","mobile");
+                    object.put("channel","ch1");
+                    object.put("date","2016-04-12");
+                    object.put("value", sysInfo.totalCPUUtil);
 
 
                 } catch (Exception ex) {
@@ -221,8 +309,8 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
 
 
                 message = object.toString();
-                StringEntity params =new StringEntity(qb.createRecord(sysInfo));
-                //StringEntity params =new StringEntity(message);
+                Log.i("@Message",message);
+                StringEntity params =new StringEntity(message);
                 request.addHeader("content-type", "application/json");
                 request.setEntity(params);
                 HttpResponse response = httpClient.execute(request);
@@ -249,18 +337,5 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
     }
 
 
-    public static void setAlarm(Context context){
-        Log.d("Carbon", "Alrm SET !!");
 
-        // get a Calendar object with current time
-        Calendar cal = Calendar.getInstance();
-        // add 30 seconds to the calendar object
-        cal.add(Calendar.SECOND, 30);
-        Intent intent = new Intent(context, AlarmReceiverLifeLog.class);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 192837, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // Get the AlarmManager service
-        AlarmManager am = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), sender);
-    }
 }
