@@ -85,7 +85,7 @@ public class SystemFragment extends Fragment {
         info.deviceId=wifiInfo.getMacAddress();
 
         SaveAsyncTask tsk = new SaveAsyncTask();
-      //  tsk.execute(info);
+        //  tsk.execute(info);
         //textTotalCpuUsage.setText("sdadadsa");
 
         Timber.d("cpu:" + readCpuInfo());
@@ -223,7 +223,6 @@ public class SystemFragment extends Fragment {
 
 
     public class SaveAsyncTask extends AsyncTask<SystemInfo, Void, Boolean> {
-
         @Override
         protected Boolean doInBackground(SystemInfo... arg0) {
             try
@@ -239,13 +238,9 @@ public class SystemFragment extends Fragment {
                 try {
 
                     object.put("cpuUtil", sysInfo.totalCPUUtil);
-
-
                 } catch (Exception ex) {
 
                 }
-
-
                 message = object.toString();
                 StringEntity params =new StringEntity(qb.createRecord(sysInfo));
                 //StringEntity params =new StringEntity(message);
@@ -257,7 +252,6 @@ public class SystemFragment extends Fragment {
                 {
                     Log.i("@@","SUCESS");
                     return true;
-
                 }
                 else
                 {

@@ -188,7 +188,7 @@ public class FacebookLoginActivity extends ActionBarActivity {
         private String constructWelcomeMessage(Profile profile) {
             StringBuffer stringBuffer = new StringBuffer();
             if (profile != null) {
-                stringBuffer.append("Welcome " + profile.getName()+"profile id"+profile.getId());
+                stringBuffer.append("Welcome " + profile.getName());
             }
             return stringBuffer.toString();
         }

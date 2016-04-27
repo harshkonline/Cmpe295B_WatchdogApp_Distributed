@@ -15,14 +15,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by harshad on 4/14/2016.
@@ -35,24 +32,10 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String message = "Sending Data for Health Monitoring and Prediction";
-        String totalCPUUtil="";
-        totalCPUUtil=getCpuUsageStatistic().toString();
-        SystemInfo info=new SystemInfo();
-        // info.totalCPUUtil=totalCPUUtil;
-
-
-        info.totalCPUUtil=totalCPUUtil;
-        info.deviceId="BCDA234";
-
-      /*  SaveAsyncTask tsk = new SaveAsyncTask();
-        tsk.execute(info);*/
-       // Toast.makeText(context, totalCPUUtil, Toast.LENGTH_SHORT).show();
-
-
-
-       // Pubnub pubnub = new Pubnub("demo", "demo");
-
-
+        String totalCPUUtil = "";
+        totalCPUUtil = getCpuUsageStatistic().toString();
+        SystemInfo info = new SystemInfo();
+        info.totalCPUUtil = totalCPUUtil;
         /* Subscribe to the demo_tutorial channel */
         Pubnub pubnub = new Pubnub(
                 "demo",  // PUBLISH_KEY   (Optional, supply "" to disable)
@@ -61,80 +44,12 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                 "",      // CIPHER_KEY    (Optional, supply "" to disable)
                 false    // SSL_ON?
         );
-
-
-        /* Subscribe to the demo_tutorial channel */
+        String data1 = "{'columns': [['cpuUtil'," + totalCPUUtil + "]]}";
         try {
-            /*pubnub.subscribe("mobilexyz", new Callback() {
-                @Override
-                public void connectCallback(String channel, Object message) {
-                    Log.d("PUBNUB","SUBSCRIBE : CONNECT on channel:" + channel
-                            + " : " + message.getClass() + " : "
-                            + message.toString());
-                }
 
-                @Override
-                public void disconnectCallback(String channel, Object message) {
-                    Log.d("PUBNUB","SUBSCRIBE : DISCONNECT on channel:" + channel
-                            + " : " + message.getClass() + " : "
-                            + message.toString());
-                }
-
-                public void reconnectCallback(String channel,    Object message) {
-                    Log.d("PUBNUB", "SUBSCRIBE : RECONNECT on channel:" + channel
-                            + " : " + message.getClass() + " : "
-                            + message.toString());
-                }
-
-                @Override
-                public void successCallback(String channel, Object message) {
-                    Log.d("PUBNUB","SUBSCRIBE : " + channel + " : "
-                            + message.getClass() + " : " + message.toString());
-                }
-
-                @Override
-                public void errorCallback(String channel, PubnubError error) {
-                    Log.d("PUBNUB","SUBSCRIBE : ERROR on channel " + channel
-                             + " : " + error.toString());
-                }
-            });*/
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        JSONObject data = new JSONObject();
-
-        ArrayList<Object> dataTemp1=new ArrayList<Object>();
-        dataTemp1.add("x");
-        dataTemp1.add(new Date().getTime());
-
-        ArrayList<Object> dataTemp2=new ArrayList<Object>();
-        dataTemp2.add("cpuUtil");
-        dataTemp2.add(totalCPUUtil);
-
-        ArrayList<Object> parent=new ArrayList<Object>();
-        parent.add(dataTemp1);
-        parent.add(dataTemp2);
-
-        try {
-            data.put("columns",parent);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-      long  t= new Date().getTime();
-       String data1= "{'columns': [['cpuUtil',"+ totalCPUUtil+"]]}";
-       // String data1= "{'columns': [['x',"+ t+"],['cpuUtil',"+ 45+"]]}";
-
-
-        try {
-           // JSONArray jsonArray = new JSONArray(data1);
-
-
-            JSONObject obj=new JSONObject(data1);
+            JSONObject obj = new JSONObject(data1);
             Log.i("@@json", String.valueOf(obj));
-                pubnub.publish("mobilexyz", obj, new Callback() {
+            pubnub.publish("mobilexyz", obj, new Callback() {
 
                 @Override
                 public void successCallback(String channel, Object response) {
@@ -147,79 +62,10 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                 }
 
             });
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
-
-
-
-       /* try
-        {
-
-            Log.i("sysinfo@@@",totalCPUUtil);
-            QueryBuilder qb = new QueryBuilder();
-
-            HttpClient httpClient = new DefaultHttpClient();
-            //HttpPost request = new HttpPost(qb.buildContactsSaveURL());
-            HttpPost request = new HttpPost("http://10.0.0.227:4000/devices");
-
-            //Log.i("@@apikey",qb.buildContactsSaveURL());
-            JSONObject object = new JSONObject();
-            try {
-
-                object.put("device_id","dev");
-                object.put("device_type","mobile");
-                object.put("channel","ch1");
-                object.put("date","2016-04-12");
-                object.put("value", totalCPUUtil);
-
-
-            } catch (Exception ex) {
-
-            }
-
-
-            message = object.toString();
-            Log.i("@Message",message);
-            StringEntity params =new StringEntity(message);
-            request.addHeader("content-type", "application/json");
-            request.setEntity(params);
-            HttpResponse response = httpClient.execute(request);
-            Log.i("@@response",String.valueOf(response.getStatusLine().getStatusCode()));
-            if(response.getStatusLine().getStatusCode()<205)
-            {
-                Log.i("@response","SUCESS");
-
-            }
-            else
-            {
-                Log.i("@response","Failed");
-            }
-        } catch (Exception e) {
-            //e.getCause();
-            String val = e.getMessage();
-            String val2 = val;
-            Log.i("exception@@",val2);
-
-        }*/
-
-
-}
-
-
-
-       // Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-      /*  Intent intent2 = new Intent(context, BaseActivity.class);
-        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent2);
-        setAlarm(context);*/
-
-
+    }
 
     private String getCpuUsageStatistic() {
 
