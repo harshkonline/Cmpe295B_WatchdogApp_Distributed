@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 /**
  * Created by harshad on 4/14/2016.
@@ -34,22 +35,47 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
         String message = "Sending Data for Health Monitoring and Prediction";
         String totalCPUUtil = "";
         totalCPUUtil = getCpuUsageStatistic().toString();
+        //Long percentageUtillizedMeomory=0L;
         SystemInfo info = new SystemInfo();
+
+        //calculate battery temperature
+       // float temperature = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0) / 10);
+        String temperature=getBatteryTemperature();
+        //calculate memory utillization
+
+      /*  ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        if (Build.VERSION.SDK_INT >= 16) {
+            // percentage can be calculated for API 16+
+            percentageUtillizedMeomory  = (long) ((float) mi.availMem / mi.totalMem * 100);
+        }else
+        {
+            percentageUtillizedMeomory=73L;
+
+        }*/
+      //  String percentageUtillizedMeomory=getPercentageMemory();
+
         info.totalCPUUtil = totalCPUUtil;
         /* Subscribe to the demo_tutorial channel */
         Pubnub pubnub = new Pubnub(
-                "demo",  // PUBLISH_KEY   (Optional, supply "" to disable)
-                "demo",  // SUBSCRIBE_KEY (Required)
+                "pub-c-d3bae2e1-d58c-457c-bee1-4fd8bb7c8992",  // PUBLISH_KEY   (Optional, supply "" to disable)
+                "sub-c-915d6d7c-615c-11e5-9a34-02ee2ddab7fe",  // SUBSCRIBE_KEY (Required)
                 "",      // SECRET_KEY    (Optional, supply "" to disable)
                 "",      // CIPHER_KEY    (Optional, supply "" to disable)
                 false    // SSL_ON?
         );
-        String data1 = "{'columns': [['cpuUtil'," + totalCPUUtil + "]]}";
+        String cpuData = "{'columns': [['cpuUtil'," + totalCPUUtil + "]]}";
+       // String memoryData = "{'columns': [['memoryUtil'," + percentageUtillizedMeomory + "]]}";
+        //String batteryData = "{'columns': [['batteryTemp'," + temperature+ "]]}";
         try {
 
-            JSONObject obj = new JSONObject(data1);
-            Log.i("@@json", String.valueOf(obj));
-            pubnub.publish("mobilexyz", obj, new Callback() {
+            JSONObject obj = new JSONObject(cpuData);
+           // JSONObject obj1 = new JSONObject(memoryData);
+          //  JSONObject obj2 = new JSONObject(batteryData);
+            Log.i("@@vpu", String.valueOf(obj));
+           // Log.i("@@jmemory", String.valueOf(obj1));
+            //Log.i("@@battery", String.valueOf(obj2));
+
+            pubnub.publish("cpu", obj, new Callback() {
 
                 @Override
                 public void successCallback(String channel, Object response) {
@@ -62,10 +88,56 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
                 }
 
             });
+
+         /*   pubnub.publish("battery", obj2, new Callback() {
+
+                @Override
+                public void successCallback(String channel, Object response) {
+                    Log.d("PUBNUB PUBLISH", response.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("PUBNUB PUBLISH", error.toString());
+                }
+
+            });
+
+
+            pubnub.publish("memory", obj1, new Callback() {
+
+                @Override
+                public void successCallback(String channel, Object response) {
+                    Log.d("PUBNUB PUBLISH", response.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("PUBNUB PUBLISH", error.toString());
+                }
+
+            });*/
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+   /* private String getPercentageMemory() {
+
+        Random ran = new Random();
+        int x = ran.nextInt(73-56+1)+56;
+        return Integer.toString(x);
+    }
+
+    private String getBatteryTemperature() {
+
+        Random ran = new Random();
+        int x = ran.nextInt(33-27+1)+27;
+        return Integer.toString(x);
+
+    }*/
 
     private String getCpuUsageStatistic() {
 
