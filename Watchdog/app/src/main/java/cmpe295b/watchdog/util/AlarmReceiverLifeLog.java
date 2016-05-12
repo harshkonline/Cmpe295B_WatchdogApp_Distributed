@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Random;
 
 /**
  * Created by harshad on 4/14/2016.
@@ -40,7 +39,7 @@ public class AlarmReceiverLifeLog extends BroadcastReceiver {
 
         //calculate battery temperature
        // float temperature = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0) / 10);
-        String temperature=getBatteryTemperature();
+        //String temperature=getBatteryTemperature();
         //calculate memory utillization
 
       /*  ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
